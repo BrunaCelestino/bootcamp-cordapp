@@ -3,6 +3,7 @@ package com.bootcamp.flows;
 import co.paralleluniverse.fibers.Suspendable;
 import com.bootcamp.contracts.TokenContract;
 import com.bootcamp.states.TokenState;
+import net.corda.core.contracts.Command;
 import net.corda.core.flows.*;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
@@ -46,16 +47,18 @@ public class TokenIssueFlow {
              *         TODO 1 - Create our TokenState to represent on-ledger tokens!
              * ===========================================================================*/
             // We create our new TokenState.
-            TokenState tokenState = null;
+            TokenState tokenState = new TokenState(issuer, owner, amount);
 
             /* ============================================================================
-             *      TODO 3 - Build our token issuance transaction to update the ledger!
+             *      TODO 2 - Build our token issuance transaction to update the ledger!
              * ===========================================================================*/
             // We build our transaction.
-            TransactionBuilder transactionBuilder = null;
+            TransactionBuilder transactionBuilder = new TransactionBuilder(notary);
+            transactionBuilder.addOutputState(tokenState, TokenContract.ID);
+            transactionBuilder.addCommand(new TokenContract.Commands.Issue(), issuer.getOwningKey(), owner.getOwningKey());
 
             /* ============================================================================
-             *          TODO 2 - Write our TokenContract to control token issuance!
+             *          TODO 3 - Write our TokenContract to control token issuance!
              * ===========================================================================*/
             // We check our transaction is valid based on its contracts.
             transactionBuilder.verify(getServiceHub());
